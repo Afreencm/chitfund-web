@@ -1,0 +1,32 @@
+.chit-groups-container {
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+
+    .table-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+}
+
+:host ::ng-deep {
+    .p-card {
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    }
+
+    .p-datatable {
+        .p-datatable-header {
+            background: transparent;
+            border: none;
+        }
+
+        .p-datatable-thead>tr>th {
+            background-color: #f8f9fa;
+            color: #495057;
+            font-weight: 600;
+        }
+    }
+}

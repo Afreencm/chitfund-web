@@ -1,0 +1,152 @@
+<div class="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-700">
+    <!-- Back Button -->
+    <div>
+        <button routerLink="/app/member"
+            class="flex items-center gap-2 text-slate-400 hover:text-indigo-600 text-xs font-bold transition-colors group">
+            <svg class="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" width="16" height="16" fill="none"
+                stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                    d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Back to Dashboard
+        </button>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div *ngIf="!isLoading() && chitGroup()" class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <!-- Left Column: Chit Summary -->
+        <div class="lg:col-span-2 space-y-4">
+            <div class="bg-white rounded-lg border border-slate-200 shadow-sm p-6 overflow-hidden relative">
+                <div class="flex items-start justify-between mb-8">
+                    <div>
+                        <h1 class="text-xl font-bold text-slate-900 tracking-tight">{{ chitGroup().name }}</h1>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">Active Fund
+                            Circle</p>
+                    </div>
+                    <div
+                        class="px-2.5 py-1 bg-emerald-50 text-emerald-600 rounded text-[10px] font-bold uppercase tracking-wider border border-emerald-100">
+                        Live
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="space-y-1">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Value</p>
+                        <p class="text-2xl font-extrabold text-indigo-600 tracking-tight">{{ chitGroup().amount |
+                            currency:'INR' }}</p>
+                    </div>
+
+                    <div class="space-y-1">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Duration</p>
+                        <p class="text-lg font-bold text-slate-700">{{ chitGroup().duration }} <span
+                                class="text-xs font-medium text-slate-400">Months</span></p>
+                    </div>
+
+                    <div class="space-y-1">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Monthly</p>
+                        <p class="text-lg font-bold text-slate-700">{{ monthlyContribution() | currency:'INR' }} <span
+                                class="text-xs font-medium text-slate-400">/mo</span></p>
+                    </div>
+                </div>
+
+                <div class="mt-8 pt-6 border-t border-slate-100 flex items-center justify-between">
+                    <span class="text-[10px] text-slate-300 font-bold uppercase tracking-wider">Group ID: {{
+                        chitGroup().id }}</span>
+                    <span class="text-[10px] text-slate-400 font-medium italic">Started on {{ chitGroup().created_at |
+                        date:'longDate' }}</span>
+                </div>
+            </div>
+
+            <!-- Placeholder for Future Modules (e.g. Installment History) -->
+            <div
+                class="bg-slate-50 border border-dashed border-slate-200 rounded-lg p-12 flex flex-col items-center justify-center text-center">
+                <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center mb-3">
+                    <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Installment History Coming
+                    Soon</p>
+            </div>
+        </div>
+
+        <!-- Right Column: Membership Card -->
+        <div class="space-y-4">
+            <div class="bg-indigo-600 rounded-lg shadow-sm p-6 text-white flex flex-col h-full min-h-[300px]">
+                <div class="flex-1">
+                    <h3 class="text-[10px] font-bold text-indigo-200 uppercase tracking-wider mb-8">My Membership</h3>
+
+                    @if (membershipInfo()) {
+                    <div class="space-y-8">
+                        <div class="flex items-center gap-4">
+                            <div
+                                class="w-12 h-12 bg-white/10 rounded-lg flex items-center justify-center border border-white/10">
+                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="text-[10px] font-bold text-indigo-100 uppercase tracking-wider">Status</p>
+                                <span class="text-base font-bold tracking-tight">Active Member</span>
+                            </div>
+                        </div>
+
+                        <div class="space-y-1">
+                            <p class="text-[10px] font-bold text-indigo-100 uppercase tracking-wider">Joined On</p>
+                            <p class="text-sm font-semibold">{{ membershipInfo().joined_at | date:'longDate' }}</p>
+                        </div>
+                    </div>
+                    } @else {
+                    <div class="text-center py-6 opacity-60">
+                        <p class="text-xs font-bold uppercase tracking-wider">No active membership</p>
+                    </div>
+                    }
+                </div>
+
+                <div class="mt-auto space-y-2 pt-6">
+                    <button
+                        class="w-full h-10 bg-white text-indigo-600 rounded-lg font-bold text-xs shadow-sm shadow-indigo-900/20 hover:bg-slate-50 transition-colors">
+                        Pay Installment
+                    </button>
+                    <button
+                        class="w-full h-10 border border-white/20 hover:bg-white/10 rounded-lg font-bold text-xs text-white transition-colors">
+                        Download Statement
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error/Loading/Empty Templates (Same as Member Dashboard but tailored) -->
+    <div *ngIf="error()" class="p-6 bg-rose-50 border border-rose-100 rounded-lg flex items-center gap-4 animate-shake">
+        <div class="w-10 h-10 bg-rose-100 rounded-lg flex items-center justify-center text-rose-500">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+        </div>
+        <p class="text-xs font-bold text-rose-600 uppercase tracking-wider">{{error()}}</p>
+    </div>
+
+    <div *ngIf="isLoading()" class="flex flex-col items-center justify-center py-20 gap-3">
+        <div class="w-10 h-10 border-2 border-indigo-50 border-t-indigo-600 rounded-full animate-spin"></div>
+        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Loading circle details...</p>
+    </div>
+
+    <div *ngIf="!isLoading() && !chitGroup()" class="flex flex-col items-center justify-center py-20 gap-4 text-center">
+        <div
+            class="w-16 h-16 bg-white rounded-xl shadow-sm border border-slate-100 flex items-center justify-center text-slate-200">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+            </svg>
+        </div>
+        <p class="text-sm font-bold text-slate-900">Circle Not Found</p>
+        <button routerLink="/app/member"
+            class="h-9 px-6 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold shadow-sm shadow-indigo-100 transition-all active:scale-95">
+            Back to Dashboard
+        </button>
+    </div>
+</div>

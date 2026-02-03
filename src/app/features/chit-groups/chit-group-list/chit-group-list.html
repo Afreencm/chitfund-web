@@ -1,0 +1,384 @@
+<div class="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-700">
+    <!-- Main Content Card -->
+    <div class="bg-white rounded-lg border border-slate-200 shadow-sm p-5">
+        <!-- Header -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+            <div>
+                <h1 class="text-lg font-bold text-slate-900 tracking-tight">Chit Groups</h1>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Manage your funding circles</p>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <button (click)="fetchChitGroups()" [disabled]="isLoading()"
+                    class="p-2 text-slate-400 hover:text-indigo-600 hover:bg-slate-50 rounded-lg transition-all disabled:opacity-50">
+                    <svg class="w-4.5 h-4.5" width="18" height="18" [class.animate-spin]="isLoading()" fill="none"
+                        stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                </button>
+                <button *ngIf="authService.isAdmin()" (click)="openCreateDialog()"
+                    class="flex items-center gap-2 h-9 px-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold shadow-sm shadow-indigo-100 transition-all active:scale-95">
+                    <svg class="w-4 h-4" width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
+                    </svg>
+                    Create Group
+                </button>
+            </div>
+        </div>
+
+        <!-- Loading & Empty States -->
+        <div *ngIf="isLoading()" class="flex flex-col items-center justify-center py-12 gap-3">
+            <div class="w-8 h-8 border-2 border-slate-100 border-t-indigo-600 rounded-full animate-spin"></div>
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Loading...</p>
+        </div>
+
+        <div *ngIf="!isLoading() && chitGroups().length === 0"
+            class="flex flex-col items-center justify-center py-12 gap-4 text-center">
+            <div class="w-14 h-14 bg-slate-50 rounded-xl flex items-center justify-center">
+                <svg class="w-7 h-7 text-slate-200" width="28" height="28" fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                </svg>
+            </div>
+            <div>
+                <h3 class="text-sm font-bold text-slate-900">No groups found</h3>
+                <p class="text-xs font-medium text-slate-400">Start by creating your first chit group.</p>
+            </div>
+        </div>
+
+        <!-- Compact Table -->
+        <div *ngIf="!isLoading() && chitGroups().length > 0" class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr
+                        class="text-[10px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100 bg-slate-50/50">
+                        <th class="px-4 py-2.5">Name</th>
+                        <th class="px-4 py-2.5 text-right w-32">Amount</th>
+                        <th class="px-4 py-2.5 text-center w-32">Duration</th>
+                        <th class="px-4 py-2.5 w-32">Created</th>
+                        <th *ngIf="authService.isAdmin()" class="px-4 py-2.5 text-right w-24">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    <tr *ngFor="let group of chitGroups()" class="group hover:bg-slate-50 transition-colors">
+                        <td class="px-4 py-3">
+                            <span class="text-sm font-semibold text-slate-700">{{group.name}}</span>
+                        </td>
+                        <td class="px-4 py-3 text-right">
+                            <span class="text-sm font-medium text-slate-900">{{ group.total_amount | currency:'INR'
+                                }}</span>
+                        </td>
+                        <td class="px-4 py-3 text-center">
+                            <span
+                                class="inline-flex items-center px-2 py-0.5 bg-indigo-50 text-indigo-600 text-[10px] font-bold rounded">
+                                {{ group.installments }}m
+                            </span>
+                        </td>
+                        <td class="px-4 py-3">
+                            <span class="text-xs text-slate-500">{{ group.created_at | date:'MMM d, y' }}</span>
+                        </td>
+                        <td *ngIf="authService.isAdmin()" class="px-4 py-3 text-right">
+                            <div class="flex items-center justify-end gap-1">
+                                <button (click)="onAddMembersAction(group)"
+                                    class="flex items-center gap-1.5 px-2 py-1 text-slate-400 hover:text-indigo-600 hover:bg-slate-50 border border-transparent hover:border-slate-100 rounded-lg transition-all"
+                                    title="Manage Members">
+                                    <svg class="w-4 h-4" width="16" height="16" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.3"
+                                            d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                                    </svg>
+                                    <span class="text-[11px] font-bold opacity-80">{{ (groupMembers()[group.id] ||
+                                        []).length }}</span>
+                                </button>
+                                <button (click)="onEditChitGroup(group)"
+                                    class="p-1.5 text-slate-400 hover:text-amber-600 hover:bg-white rounded transition-colors"
+                                    title="Edit">
+                                    <svg class="w-4 h-4" width="16" height="16" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.3"
+                                            d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                    </svg>
+                                </button>
+                                <button (click)="onViewContributions(group)"
+                                    class="p-1.5 text-slate-400 hover:text-emerald-600 hover:bg-white rounded transition-colors"
+                                    title="View Contributions">
+                                    <svg class="w-4 h-4" width="16" height="16" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.3"
+                                            d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                </button>
+                                <button (click)="onDeleteChitGroup(group)"
+                                    class="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-white rounded transition-colors"
+                                    title="Delete">
+                                    <svg class="w-4 h-4" width="16" height="16" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.3"
+                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Create/Edit Modal (Compact) -->
+    <div *ngIf="showCreateDialog()" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div (click)="closeCreateDialog()" class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"></div>
+        <div
+            class="relative w-full max-w-md bg-white rounded-xl shadow-xl p-6 animate-in zoom-in-95 duration-200 border border-slate-200">
+            <div class="mb-6">
+                <h2 class="text-lg font-bold text-slate-900 tracking-tight">{{isEditMode() ? 'Edit Group' : 'New Chit
+                    Group'}}</h2>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">Enter funding circle
+                    details</p>
+            </div>
+
+            <div class="space-y-4">
+                <div class="space-y-1.5">
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider ml-0.5">Group
+                        Name</label>
+                    <input [(ngModel)]="newName" placeholder="Monthly Savings"
+                        class="w-full h-10 px-4 bg-slate-50 border border-slate-200 text-slate-900 rounded-lg focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500 focus:bg-white transition-all outline-none placeholder:text-slate-300 text-sm font-medium">
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-1.5">
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider ml-0.5">Amount
+                            (₹)</label>
+                        <input type="number" [(ngModel)]="newAmount" placeholder="100000"
+                            class="w-full h-10 px-4 bg-slate-50 border border-slate-200 text-slate-900 rounded-lg focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500 focus:bg-white transition-all outline-none placeholder:text-slate-300 text-sm font-medium">
+                    </div>
+                    <div class="space-y-1.5">
+                        <label
+                            class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider ml-0.5">Months</label>
+                        <input type="number" [(ngModel)]="newDuration" placeholder="12"
+                            class="w-full h-10 px-4 bg-slate-50 border border-slate-200 text-slate-900 rounded-lg focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500 focus:bg-white transition-all outline-none placeholder:text-slate-300 text-sm font-medium">
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-end gap-2 mt-8">
+                <button (click)="closeCreateDialog()"
+                    class="h-9 px-4 text-xs font-bold text-slate-500 hover:text-slate-700 transition-colors">Cancel</button>
+                <button (click)="onSaveChitGroup()"
+                    [disabled]="!newName() || !newAmount() || !newDuration() || isSubmitting()"
+                    class="h-9 px-5 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-200 text-white rounded-lg text-xs font-bold shadow-sm shadow-indigo-100 transition-all active:scale-95 flex items-center gap-2">
+                    <span *ngIf="!isSubmitting()">{{isEditMode() ? 'Update' : 'Create'}}</span>
+                    <div *ngIf="isSubmitting()"
+                        class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Members Modal (Compact) -->
+    <div *ngIf="showMembersDialog()" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div (click)="showMembersDialog.set(false)" class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"></div>
+        <div
+            class="relative w-full max-w-sm bg-white rounded-xl shadow-xl p-6 animate-in zoom-in-95 duration-200 border border-slate-200 max-h-[90vh] flex flex-col">
+            <div class="mb-5 flex-shrink-0">
+                <h2 class="text-lg font-bold text-slate-900 tracking-tight">Members —
+                    {{selectedGroupForMembers()?.name}}</h2>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">Manage funding circle
+                    participants</p>
+            </div>
+
+            <!-- Scrollable Content -->
+            <div class="space-y-6 overflow-y-auto custom-scrollbar pr-1 -mr-1">
+                <!-- Add Member Form Section -->
+                <div class="space-y-4">
+                    <h3
+                        class="text-[10px] font-bold text-slate-900 uppercase tracking-widest border-l-2 border-indigo-500 pl-2">
+                        Add New Member</h3>
+
+                    <!-- Success Alert -->
+                    <div *ngIf="successMessage()"
+                        class="p-3 bg-emerald-50 border border-emerald-100 rounded-lg flex items-center gap-2.5 animate-in fade-in zoom-in-95 duration-200">
+                        <svg class="w-4 h-4 text-emerald-500 flex-shrink-0" width="16" height="16" fill="none"
+                            stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        <p class="text-xs font-semibold text-emerald-600 leading-tight">{{successMessage()}}</p>
+                    </div>
+
+                    <!-- Error Alert -->
+                    <div *ngIf="error()"
+                        class="p-3 bg-rose-50 border border-rose-100 rounded-lg flex items-center gap-2.5 animate-in fade-in zoom-in-95 duration-200">
+                        <svg class="w-4 h-4 text-rose-500 flex-shrink-0" width="16" height="16" fill="none"
+                            stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <p class="text-xs font-semibold text-rose-600 leading-tight">{{error()}}</p>
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider ml-0.5">Select
+                            User</label>
+                        <div class="relative">
+                            <select [(ngModel)]="selectedUserId"
+                                [disabled]="availableUsers().length === 0 || isLoadingUsers()"
+                                class="w-full h-10 pl-4 pr-10 bg-slate-50 border border-slate-200 text-slate-900 rounded-lg focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500 focus:bg-white transition-all outline-none text-sm font-medium appearance-none disabled:opacity-50 disabled:cursor-not-allowed">
+                                <option *ngIf="availableUsers().length > 0" value="">Select user...</option>
+                                <option *ngIf="availableUsers().length === 0" value="">No more members to add</option>
+                                <option *ngFor="let user of availableUsers()" [value]="user.id">{{user.email}}</option>
+                            </select>
+                            <div class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                                <svg *ngIf="!isLoadingUsers()" class="w-4 h-4" width="16" height="16" fill="none"
+                                    stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                        d="M19 9l-7 7-7-7" />
+                                </svg>
+                                <div *ngIf="isLoadingUsers()"
+                                    class="w-4 h-4 border-2 border-slate-200 border-t-indigo-500 rounded-full animate-spin">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button (click)="onAddMemberSubmit()"
+                        [disabled]="!selectedUserId() || isSubmitting() || availableUsers().length === 0"
+                        class="w-full h-10 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-200 text-white rounded-lg text-xs font-bold shadow-sm shadow-indigo-100 transition-all active:scale-95 flex items-center justify-center gap-2">
+                        <span *ngIf="!isSubmitting()">Add Member</span>
+                        <div *ngIf="isSubmitting()"
+                            class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                    </button>
+                </div>
+
+                <hr class="border-slate-100">
+
+                <!-- Current Members List Section -->
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between">
+                        <h3
+                            class="text-[10px] font-bold text-slate-900 uppercase tracking-widest border-l-2 border-indigo-500 pl-2">
+                            Current Members</h3>
+                        <span class="text-[10px] font-bold text-slate-400 bg-slate-50 px-2 py-0.5 rounded-full">{{
+                            (groupMembers()[selectedGroupForMembers()?.id] || []).length }}</span>
+                    </div>
+
+                    <div *ngIf="(groupMembers()[selectedGroupForMembers()?.id] || []).length > 0" class="space-y-1">
+                        <div *ngFor="let member of (groupMembers()[selectedGroupForMembers()?.id] || [])"
+                            class="flex items-center justify-between p-2 rounded-lg hover:bg-slate-50 transition-colors group">
+                            <div class="flex items-center gap-2.5">
+                                <div class="w-2 h-2 bg-indigo-500 rounded-full flex-shrink-0"></div>
+                                <span
+                                    class="text-[11px] font-medium text-slate-600 group-hover:text-slate-900 transition-colors">{{member.email}}</span>
+                            </div>
+
+                            <button (click)="onRemoveMember(member)" [disabled]="isRemovingMember() || isSubmitting()"
+                                class="p-1.5 text-slate-300 hover:text-rose-600 hover:bg-white rounded-md transition-all opacity-0 group-hover:opacity-100 disabled:opacity-30 disabled:cursor-not-allowed"
+                                title="Remove member">
+                                <svg *ngIf="!isRemovingMember()" class="w-3.5 h-3.5" width="14" height="14" fill="none"
+                                    stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                                <div *ngIf="isRemovingMember()"
+                                    class="w-3 h-3 border-2 border-slate-200 border-t-rose-500 rounded-full animate-spin">
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div *ngIf="!(groupMembers()[selectedGroupForMembers()?.id]) || groupMembers()[selectedGroupForMembers()?.id]?.length === 0"
+                        class="py-8 text-center bg-slate-50/50 rounded-xl border border-dashed border-slate-200">
+                        <p class="text-[10px] italic text-slate-400 font-medium">No members added yet</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-end mt-6 pt-4 border-t border-slate-50 flex-shrink-0">
+                <button (click)="showMembersDialog.set(false)"
+                    class="h-9 px-4 text-xs font-bold text-slate-500 hover:text-slate-900 transition-colors bg-slate-50 hover:bg-slate-100 rounded-lg">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal (Destructive) -->
+    <div *ngIf="showConfirmDeleteMember()" class="fixed inset-0 z-[110] flex items-center justify-center p-4">
+        <div (click)="closeConfirmDeleteModal()" class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"></div>
+        <div
+            class="relative w-full max-w-sm bg-white rounded-xl shadow-2xl p-6 animate-in zoom-in-95 duration-200 border border-slate-200">
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-10 h-10 bg-rose-50 rounded-full flex items-center justify-center flex-shrink-0">
+                    <svg class="w-5 h-5 text-rose-500" width="20" height="20" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                </div>
+                <div>
+                    <h2 class="text-base font-bold text-slate-900 tracking-tight">Remove Member</h2>
+                    <p class="text-[10px] font-bold text-rose-400 uppercase tracking-wider">Irreversible Action</p>
+                </div>
+            </div>
+
+            <div class="mb-6">
+                <p class="text-sm text-slate-600 leading-relaxed">
+                    Are you sure you want to remove <span
+                        class="font-bold text-slate-900">{{memberToRemove()?.email}}</span> from <span
+                        class="font-bold text-slate-900">{{selectedGroupForMembers()?.name}}</span>?
+                </p>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <button (click)="closeConfirmDeleteModal()" [disabled]="isRemovingMember()"
+                    class="flex-1 h-10 px-4 text-xs font-bold text-slate-500 hover:text-slate-900 transition-colors bg-slate-50 hover:bg-slate-100 rounded-lg">
+                    Cancel
+                </button>
+                <button (click)="confirmRemoveMember()" [disabled]="isRemovingMember()"
+                    class="flex-[2] h-10 px-4 bg-rose-600 hover:bg-rose-700 disabled:bg-rose-200 text-white rounded-lg text-xs font-bold shadow-sm shadow-rose-100 transition-all active:scale-95 flex items-center justify-center gap-2">
+                    <span *ngIf="!isRemovingMember()">Remove</span>
+                    <div *ngIf="isRemovingMember()"
+                        class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contributions Modal (Compact) -->
+    <div *ngIf="showContributionsDialog()" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div (click)="showContributionsDialog.set(false)" class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm">
+        </div>
+        <div
+            class="relative w-full max-w-2xl bg-white rounded-xl shadow-xl p-0 animate-in zoom-in-95 duration-200 border border-slate-200 max-h-[90vh] flex flex-col overflow-hidden">
+            <!-- Modal Header -->
+            <div
+                class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-white sticky top-0 z-20">
+                <div>
+                    <h2 class="text-lg font-bold text-slate-900 tracking-tight">Contributions History</h2>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">
+                        {{selectedGroupForContributions()?.name}}
+                    </p>
+                </div>
+                <button (click)="showContributionsDialog.set(false)"
+                    class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-lg transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="p-6 overflow-y-auto custom-scrollbar">
+                <app-contributions-list [chitGroupId]="selectedGroupForContributions().id"></app-contributions-list>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex justify-end">
+                <button (click)="showContributionsDialog.set(false)"
+                    class="h-9 px-4 text-xs font-bold text-slate-600 hover:text-slate-900 transition-colors">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

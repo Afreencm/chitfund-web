@@ -1,0 +1,125 @@
+<div class="flex h-screen overflow-hidden bg-[#F4F7FB]">
+    <!-- Sidebar Backdrop (Mobile) -->
+    <div *ngIf="isSidebarOpen()" (click)="toggleSidebar()"
+        class="fixed inset-0 z-40 bg-slate-900/40 backdrop-blur-sm lg:hidden transition-opacity duration-300"></div>
+
+    <!-- Sidebar -->
+    <aside [class]="'fixed inset-y-0 left-0 z-50 w-60 bg-white border-r border-slate-200 transition-transform duration-300 transform lg:static lg:translate-x-0 ' + 
+               (isSidebarOpen() ? 'translate-x-0' : '-translate-x-full')">
+        <div class="flex flex-col h-full">
+            <!-- Sidebar Header / Logo -->
+            <div class="flex items-center h-14 border-b border-slate-100">
+                <img src="/SyncFund.png" alt="SyncFund Logo" class="h-11 w-auto object-contain">
+            </div>
+
+            <!-- Sidebar Navigation -->
+            <nav class="flex-1 px-3 py-4 overflow-y-auto custom-scrollbar">
+                <!-- Admin Section -->
+                <div *ngIf="isAdmin()" class="mb-6">
+                    <h3 class="px-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">
+                        Administration
+                    </h3>
+                    <div class="space-y-0.5">
+                        <a *ngFor="let item of adminNavItems" [routerLink]="item.route"
+                            routerLinkActive="bg-indigo-50 text-indigo-600" [routerLinkActiveOptions]="{exact: true}"
+                            class="flex items-center h-10 px-3 text-sm font-medium text-slate-600 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer group">
+                            <svg class="w-4.5 h-4.5 mr-3 flex-shrink-0" width="18" height="18" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    [attr.d]="item.icon"></path>
+                            </svg>
+                            {{item.label}}
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Member Section -->
+                <div>
+                    <h3 class="px-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">
+                        Member Area
+                    </h3>
+                    <div class="space-y-0.5">
+                        <a *ngFor="let item of memberNavItems" [routerLink]="item.route"
+                            routerLinkActive="bg-indigo-50 text-indigo-600" [routerLinkActiveOptions]="{exact: true}"
+                            class="flex items-center h-10 px-3 text-sm font-medium text-slate-600 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer group">
+                            <svg class="w-4.5 h-4.5 mr-3 flex-shrink-0" width="18" height="18" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    [attr.d]="item.icon"></path>
+                            </svg>
+                            {{item.label}}
+                        </a>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- Sidebar Footer -->
+            <div class="p-4 border-t border-slate-100 flex flex-col gap-3">
+                <div class="flex items-center gap-3">
+                    <div
+                        class="w-9 h-9 rounded-lg bg-slate-100 flex items-center justify-center text-indigo-600 font-bold text-xs">
+                        {{userEmail().charAt(0).toUpperCase()}}
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-xs font-semibold text-slate-900 truncate">{{userEmail().split('@')[0]}}</p>
+                        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-tight">{{isAdmin() ? 'Admin' :
+                            'Member'}}</p>
+                    </div>
+                </div>
+                <button (click)="onLogout()"
+                    class="w-full flex items-center justify-center gap-2 h-9 text-xs font-bold text-rose-500 bg-rose-50/50 rounded-lg hover:bg-rose-50 transition-colors">
+                    <svg class="w-3.5 h-3.5" width="14" height="14" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                    </svg>
+                    Sign Out
+                </button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="flex flex-col flex-1 min-w-0 overflow-hidden">
+        <!-- Top Header -->
+        <header class="h-14 bg-white border-b border-slate-200 px-6 flex items-center justify-between z-10">
+            <div class="flex items-center gap-4">
+                <button (click)="toggleSidebar()" class="lg:hidden p-1.5 text-slate-500 hover:bg-slate-100 rounded-lg">
+                    <svg class="w-5 h-5" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                            d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
+                <div>
+                    <h2 class="text-sm font-semibold text-slate-900">Dashboard</h2>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <div class="hidden sm:flex flex-col items-end">
+                    <span class="text-[11px] font-medium text-slate-600">{{userEmail()}}</span>
+                    <span class="text-[10px] text-emerald-500 font-bold uppercase flex items-center gap-1">
+                        <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
+                        Connected
+                    </span>
+                </div>
+                <div class="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center">
+                    <svg class="w-4 h-4 text-indigo-600" width="16" height="16" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                    </svg>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Workspace -->
+        <main class="flex-1 overflow-y-auto custom-scrollbar bg-[#F4F7FB]">
+            <div class="max-w-[1400px] mx-auto p-5">
+                <div class="router-container">
+                    <router-outlet></router-outlet>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>

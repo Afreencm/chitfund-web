@@ -1,0 +1,244 @@
+﻿node.exe : npm 
+verbose cli 
+C:\Program Files\node
+js\node.exe C:\Users\
+afree\AppData\Roaming
+\npm\node_modules\npm
+\bin\npm-cli.js
+At C:\Program Files\n
+odejs\npm.ps1:29 
+char:3
++   & $NODE_EXE 
+$NPM_CLI_JS $args
++   ~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~
+    + CategoryInfo   
+           : NotSpe  
+  cified: (npm ver   
+ bose cli...\bin\    
+npm-cli.js:Strin    
+g) [], RemoteExc    
+eption
+    + FullyQualified 
+   ErrorId : Native  
+  CommandError
+ 
+npm info using 
+npm@11.6.0
+npm info using 
+node@v22.15.0
+npm verbose title 
+npm run build
+npm verbose argv 
+"run" "build" 
+"--loglevel" 
+"verbose"
+npm verbose logfile 
+logs-max:10 dir:C:\Us
+ers\afree\AppData\Loc
+al\npm-cache\_logs\20
+26-01-27T12_18_36_545
+Z-
+npm verbose logfile C
+:\Users\afree\AppData
+\Local\npm-cache\_log
+s\2026-01-27T12_18_36
+_545Z-debug-0.log
+
+> chitfund-web@0.0.0 build
+> ng build
+
+[33mΓ¥»[39m Building...
+D:\Chitt-E\chitfund-w
+eb\node_modules\tailw
+indcss\dist\lib.js:38
+${P}`)}}))u.get(y)?.(
+A);for(let y of 
+m)y(A);if(d){let 
+y=[];for(let[N,P]of A
+.theme.entries()){if(
+P.options&2)continue;
+let z=a(xe(N),P.value
+);z.src=P.src,y.push(
+z)}let K=A.theme.getK
+eyframes();for(let N 
+of K)e.push(de({theme
+:!0},[W([N])]));d.nod
+es=[de({theme:!0},y)]
+}if(l|=ot(e,A),l|=Fe(
+e,A),l|=$e(e,A),p){le
+t y=p;y.kind="context
+",y.context={}}return
+ _(e,y=>{if(y.kind===
+"at-rule")return y.na
+me==="@utility"?V.Rep
+lace([]):V.Skip}),{de
+signSystem:A,ast:e,so
+urces:h,root:S,utilit
+iesNode:p,features:l,
+inlineCandidates:w}}a
+sync function cn(e,r=
+{}){let{designSystem:
+i,ast:t,sources:n,roo
+t:l,utilitiesNode:o,f
+eatures:f,inlineCandi
+dates:u}=await un(e,r
+);t.unshift(dt(`! 
+tailwindcss v${dr} | 
+MIT License | https:/
+/tailwindcss.com 
+`));function c(h){i.i
+nvalidCandidates.add(
+h)}let m=new Set,d=nu
+ll,p=0,k=!1;for(let 
+h of u)i.invalidCandi
+dates.has(h)||(m.add(
+h),k=!0);return{sourc
+es:n,root:l,features:
+f,build(h){if(f===0)r
+eturn e;if(!o)return 
+d??=Re(t,i,r.polyfill
+s),d;let 
+w=k,x=!1;k=!1;let 
+S=m.size;for(let y 
+of h)if(!i.invalidCan
+didates.has(y))if(y[0
+]==="-"&&y[1]==="-"){
+let K=i.theme.markUse
+dVariable(y);w||=K,x|
+|=K}else m.add(y),w||
+=m.size!==S;if(!w)ret
+urn d??=Re(t,i,r.poly
+fills),d;let A=Te(m,i
+,{onInvalidCandidate:
+c}).astNodes;return r
+.from&&_(A,y=>{y.src?
+?=o.src}),!x&&p===A.l
+ength?(d??=Re(t,i,r.p
+olyfills),d):(p=A.len
+gth,o.nodes=A,d=Re(t,
+i,r.polyfills),d)}}}a
+sync function 
+Fa(e,r={}){let i=Ne(e
+,{from:r.from}),t=awa
+it cn(i,r),n=i,l=e;re
+turn{...t,build(o){le
+t 
+f=t.build(o);return f
+===n||(l=ie(f,!!r.fro
+m),n=f),l},buildSourc
+eMap(){return 
+an({ast:n})}}}async 
+function Wa(e,r={}){r
+eturn(await un(Ne(e,{
+from:r.from}),r)).des
+ignSystem}function 
+lt(){throw new 
+Error("It looks like 
+you're trying to use 
+`tailwindcss` 
+directly as a 
+PostCSS plugin. The 
+PostCSS plugin has 
+moved to a separate 
+package, so to 
+continue using 
+Tailwind CSS with 
+PostCSS you'll need 
+to install `@tailwind
+css/postcss` and 
+update your PostCSS c
+onfiguration.")}for(l
+et e in It)e!=="defau
+lt"&&(lt[e]=It[e]);mo
+dule.exports=lt;
+                     
+                     
+                     
+                     
+                     
+                     
+                     
+                     
+                     
+                     
+                     
+                     
+                     
+                     
+                     
+                     
+                     
+                     
+                     
+                     
+                     
+                     
+                     
+                     
+                     
+                     
+                     
+                     
+                     
+                     
+                     
+                     
+                     
+                     
+                     
+                     
+                     
+                     
+                     
+                     
+                     
+                     
+                     
+                     
+                     
+                     
+                     
+                     
+            
+
+Error: It looks like 
+you're trying to use 
+`tailwindcss` 
+directly as a 
+PostCSS plugin. The 
+PostCSS plugin has 
+moved to a separate 
+package, so to 
+continue using 
+Tailwind CSS with 
+PostCSS you'll need 
+to install `@tailwind
+css/postcss` and 
+update your PostCSS 
+configuration.
+    at Object.lt [as 
+default] (D:\Chitt-E\
+chitfund-web\node_mod
+ules\tailwindcss\dist
+\lib.js:38:1643)
+    at StylesheetPlug
+inFactory.initPostcss
+ (D:\Chitt-E\chitfund
+-web\node_modules\@an
+gular\build\src\tools
+\esbuild\stylesheets\
+stylesheet-plugin-fac
+tory.js:169:66)
+
+Node.js v22.15.0
+npm verbose cwd D:\Ch
+itt-E\chitfund-web
+npm verbose os 
+Windows_NT 10.0.26200
+npm verbose node 
+v22.15.0
+npm verbose npm  
+v11.6.0
+npm verbose exit 1
+npm verbose code 1

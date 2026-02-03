@@ -1,0 +1,223 @@
+<div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden min-h-[200px] flex flex-col">
+    <!-- Header -->
+    <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+        <h3 class="text-sm font-bold text-slate-800 uppercase tracking-tight">Contributions History</h3>
+
+        <div class="flex items-center gap-3">
+            <!-- Add Button (Admin Only) -->
+            <button *ngIf="isAdmin()" (click)="toggleAddForm()" [class.bg-rose-50]="showAddForm()"
+                [class.text-rose-600]="showAddForm()" [class.bg-indigo-600]="!showAddForm()"
+                [class.text-white]="!showAddForm()"
+                class="inline-flex items-center gap-2 px-3 py-1.5 text-[9px] font-bold uppercase tracking-wider rounded-lg transition-all shadow-sm active:scale-95">
+                <svg class="w-3 h-3 transition-transform duration-300" [class.rotate-45]="showAddForm()" fill="none"
+                    stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
+                </svg>
+                {{ showAddForm() ? 'Cancel' : 'Record Installment' }}
+            </button>
+
+            <div class="h-4 w-[1px] bg-slate-200" *ngIf="isAdmin()"></div>
+
+            <div class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-indigo-500 animate-pulse" *ngIf="loading()"></span>
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest" *ngIf="!loading()">
+                    {{ contributions().length }} Records
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Inline Form (Admin) -->
+    <div *ngIf="showAddForm()"
+        class="bg-slate-50 border-b border-slate-100 p-5 animate-in slide-in-from-top duration-300">
+        <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            <!-- Member Select -->
+            <div class="md:col-span-2">
+                <label class="block text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Select
+                    Member</label>
+                <select [ngModel]="selectedMemberId()" (ngModelChange)="selectedMemberId.set($event)"
+                    class="w-full h-9 bg-white border border-slate-200 rounded-lg px-3 text-xs font-semibold focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all appearance-none cursor-pointer">
+                    <option [ngValue]="null">--- Choose member ---</option>
+                    <option *ngFor="let member of groupMembers()" [value]="member.id">
+                        {{ member.email }}
+                    </option>
+                </select>
+            </div>
+
+            <!-- Installment No -->
+            <div class="lg:col-span-1">
+                <label class="block text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Installment
+                    #</label>
+                <input type="number" [ngModel]="formInstallmentNo()" (ngModelChange)="formInstallmentNo.set($event)"
+                    class="w-full h-9 bg-white border border-slate-200 rounded-lg px-3 text-xs font-semibold focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all shadow-inner"
+                    placeholder="1">
+            </div>
+
+            <!-- Amount -->
+            <div class="lg:col-span-1">
+                <label class="block text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Amount
+                    (₹)</label>
+                <input type="number" [ngModel]="formAmount()" (ngModelChange)="formAmount.set($event)"
+                    class="w-full h-9 bg-white border border-slate-200 rounded-lg px-3 text-xs font-semibold focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all shadow-inner"
+                    placeholder="0.00">
+            </div>
+
+            <!-- Status -->
+            <div class="lg:col-span-1">
+                <label class="block text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Status</label>
+                <select [ngModel]="formStatus()" (ngModelChange)="formStatus.set($event)"
+                    class="w-full h-9 bg-white border border-slate-200 rounded-lg px-3 text-xs font-semibold focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all appearance-none cursor-pointer">
+                    <option value="unpaid">Unpaid</option>
+                    <option value="paid">Paid</option>
+                </select>
+            </div>
+
+            <!-- Save Button -->
+            <div class="md:col-span-1 flex items-end">
+                <button (click)="onSaveContribution()" [disabled]="isSubmitting()"
+                    class="w-full h-9 bg-emerald-600 text-white text-[9px] font-bold uppercase tracking-wider rounded-lg hover:bg-emerald-700 transition-all shadow-md active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2">
+                    <span *ngIf="isSubmitting()"
+                        class="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                    {{ isSubmitting() ? 'Saving...' : 'Save' }}
+                </button>
+            </div>
+
+            <!-- Paid At (Full width when visible) -->
+            <div *ngIf="formStatus() === 'paid'"
+                class="col-span-1 md:col-span-3 lg:col-span-6 animate-in fade-in slide-in-from-left duration-200">
+                <label class="block text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Paid Date
+                    (Optional)</label>
+                <input type="date" [ngModel]="formPaidAt()" (ngModelChange)="formPaidAt.set($event)"
+                    class="w-full h-9 bg-white border border-slate-200 rounded-lg px-3 text-xs font-semibold focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all shadow-inner">
+            </div>
+        </div>
+
+        <!-- Inline Feedback -->
+        <p *ngIf="formError()"
+            class="mt-3 text-[10px] font-bold text-rose-500 uppercase tracking-wider flex items-center gap-1.5">
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+            {{ formError() }}
+        </p>
+        <p *ngIf="successMessage()"
+            class="mt-3 text-[10px] font-bold text-emerald-500 uppercase tracking-wider flex items-center gap-1.5">
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+            </svg>
+            {{ successMessage() }}
+        </p>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="loading()" class="flex-1 flex flex-col items-center justify-center p-8 gap-3">
+        <div class="w-8 h-8 border-2 border-indigo-100 border-t-indigo-600 rounded-full animate-spin"></div>
+        <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Syncing Data...</p>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="!loading() && fetchError()" class="flex-1 flex flex-col items-center justify-center p-8 text-center">
+        <div class="w-12 h-12 bg-rose-50 text-rose-500 rounded-xl flex items-center justify-center mb-3">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+        </div>
+        <p class="text-sm font-bold text-slate-900 mb-1">Failed to load contributions</p>
+        <p class="text-[11px] text-slate-500 max-w-[200px]">{{ fetchError() }}</p>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!loading() && !fetchError() && contributions().length === 0"
+        class="flex-1 flex flex-col items-center justify-center p-8 text-center">
+        <div class="w-12 h-12 bg-slate-50 text-slate-400 rounded-xl flex items-center justify-center mb-3">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+        </div>
+        <p class="text-sm font-bold text-slate-900 mb-1">No contributions found</p>
+        <p class="text-[11px] text-slate-500 uppercase tracking-wider transition-all"
+            [class.mb-4]="isAdmin() && !showAddForm()">
+            Payments will appear here once recorded
+        </p>
+
+        <button *ngIf="isAdmin() && !showAddForm()" (click)="toggleAddForm()"
+            class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white text-[10px] font-bold uppercase tracking-wider rounded-lg hover:bg-indigo-700 transition-all shadow-md active:scale-95 animate-in fade-in zoom-in duration-500">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
+            </svg>
+            Record First Installment
+        </button>
+    </div>
+
+    <!-- Table Content -->
+    <div *ngIf="!loading() && !fetchError() && contributions().length > 0"
+        class="flex-1 overflow-auto custom-scrollbar">
+        <table class="w-full text-left border-collapse">
+            <thead>
+                <tr class="sticky top-0 bg-white shadow-[0_1px_0_0_rgba(0,0,0,0.05)] z-10">
+                    <th
+                        class="px-5 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest border-b border-slate-50">
+                        Installment
+                    </th>
+                    <th
+                        class="px-5 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest border-b border-slate-50">
+                        Amount
+                    </th>
+                    <th
+                        class="px-5 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest border-b border-slate-50">
+                        Status
+                    </th>
+                    <th
+                        class="px-5 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest border-b border-slate-50">
+                        Paid Date
+                    </th>
+                    <th *ngIf="isAdmin()"
+                        class="px-5 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest border-b border-slate-50 text-right">
+                        Member
+                    </th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-50">
+                <tr *ngFor="let c of contributions()" class="hover:bg-slate-50/50 transition-colors group">
+                    <td class="px-5 py-3.5">
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-bold text-slate-900">#{{ c.installment_no }}</span>
+                            <span
+                                class="text-[10px] font-medium text-slate-400 bg-slate-50 px-1.5 py-0.5 rounded uppercase">Month</span>
+                        </div>
+                    </td>
+                    <td class="px-5 py-3.5">
+                        <span class="text-xs font-bold text-slate-700">₹{{ c.amount | number:'1.0-0' }}</span>
+                    </td>
+                    <td class="px-5 py-3.5">
+                        <span *ngIf="c.status === 'paid'"
+                            class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-600 uppercase tracking-wider border border-emerald-100 ring-1 ring-emerald-100 ring-offset-0">
+                            <span class="w-1 h-1 bg-emerald-500 rounded-full mr-1.5"></span>
+                            Paid
+                        </span>
+                        <span *ngIf="c.status === 'unpaid'"
+                            class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-600 uppercase tracking-wider border border-amber-100">
+                            Unpaid
+                        </span>
+                    </td>
+                    <td class="px-5 py-3.5">
+                        <span *ngIf="c.paid_at" class="text-xs font-medium text-slate-500 tabular-nums">
+                            {{ c.paid_at | date:'dd MMM yyyy' }}
+                        </span>
+                        <span *ngIf="!c.paid_at" class="text-[10px] font-bold text-slate-300 uppercase italic">
+                            ---
+                        </span>
+                    </td>
+                    <td *ngIf="isAdmin()" class="px-5 py-3.5 text-right">
+                        <span class="text-[10px] font-medium text-slate-500">
+                            {{ c.user_id }}
+                        </span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
