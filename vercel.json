@@ -1,6 +1,6 @@
 {
   "buildCommand": "npm run build",
-  "outputDirectory": "dist/chitfund-web/browser",
+  "outputDirectory": "dist",
   "routes": [
     {
       "src": "/(.*)",
@@ -8,4 +8,5 @@
     }
   ]
 }
+
 
